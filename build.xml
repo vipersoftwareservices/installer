@@ -1,0 +1,142 @@
+<?xml version="1.0" ?>
+<!-- ======================================================================== -->
+<!-- schematool build file -->
+<!-- ======================================================================== -->
+<project name="installer" default="all" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:jacoco="antlib:org.jacoco.ant">
+	<property file="build.properties" />
+	<property name="name" value="installer" />
+	<property name="version" value="1.0" />
+	<property name="build.dir" value="${basedir}/build" />
+	<property name="install.test.home" value="${basedir}" />
+	<!-- ===================================================================== -->
+	<path id="classpath.main">
+		<pathelement path="${build.dir}/classes" />
+		<fileset dir="${build.dir}" includes="${name}.jar" />
+		<fileset dir="${basedir}/lib" includes="**/*.jar" />
+	</path>
+	<path id="classpath.tools">
+		<fileset dir="${basedir}/lib" includes="**/*.jar" />
+	</path>
+	<!-- =================================================================== -->
+	<!-- Task Definitions -->
+	<!-- =================================================================== -->
+	<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask" classpathref="classpath.tools" />
+	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml" classpathref="classpath.tools" />
+	<taskdef resource="org/apache/catalina/ant/catalina.tasks" classpathref="classpath.tools" />
+	<!-- =================================================================== -->
+	<target name="clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${basedir}/srcgen" />
+	</target>
+	<target name="prepare" depends="clean">
+		<tstamp />
+		<mkdir dir="${basedir}/srcgen" />
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.dir}/classes" />
+		<mkdir dir="${build.dir}/doc/api" />
+		<mkdir dir="${build.dir}/reports/raw" />
+	</target>
+	<target name="srcgen" depends="prepare">
+		<xjc schema="${basedir}/etc/installation.xsd" destdir="${basedir}/srcgen" package="com.viper.installer.model">
+			<arg value="-npa" />
+		</xjc>
+	</target>
+	<target name="compile" depends="srcgen">
+		<javac srcdir="srcgen:src:unit" destdir="${build.dir}/classes" debug="${debug}" deprecation="${deprecation}" source="${source}" target="${target}" compiler="${compiler}" optimize="${optimize}">
+			<classpath refid="classpath.main" />
+		</javac>
+	</target>
+	<target name="jar" depends="compile">
+		<zip destfile="${build.dir}/vome.zip">
+			<fileset dir="${basedir}/etc/data" includes="**" />
+		</zip>
+		<manifest file="${build.dir}/install.txt">
+			<attribute name="Manifest-Version" value="1.0" />
+			<attribute name="Sealed" value="false" />
+			<attribute name="MainTest-Version" value="${version}" />
+			<attribute name="Build-Date" value="${TODAY}" />
+			<attribute name="Build-Time" value="${TSTAMP}" />
+			<attribute name="Main-Class" value="com.viper.installer.InstallWizard" />
+		</manifest>
+		<jar jarfile="${build.dir}/${name}.jar" manifest="${build.dir}/install.txt">
+			<fileset dir="${build.dir}/classes" />
+			<fileset dir="${basedir}/src" includes="**/*.css" />
+			<fileset dir="${basedir}/etc" includes="installation.xsd" />
+			<zipgroupfileset dir="${basedir}/lib/" excludes="META-INF/**/*">
+				<include name="*.jar" />
+			</zipgroupfileset>
+		</jar>
+	</target>
+	
+    <target name="src.jar" depends="jar">
+        <jar jarfile="${build.dir}/${name}-src.jar">
+            <fileset dir="${basedir}/.." includes="${name}/etc/**" />
+            <fileset dir="${basedir}/.." includes="${name}/lib/**" />
+            <fileset dir="${basedir}/.." includes="${name}/src/**" />
+            <fileset dir="${basedir}/.." includes="${name}/srcgen/**" />
+            <fileset dir="${basedir}/.." includes="${name}/unit/**" />
+            <fileset dir="${basedir}/.." includes="${name}/*" />
+            <fileset dir="${basedir}/.." includes="${name}/*.*" />
+        </jar>
+    </target>
+    
+	<!-- =================================================================== -->
+	<!-- Creates the API documentation -->
+	<!-- =================================================================== -->
+	<target name="javadocs">
+		<mkdir dir="${build.dir}/doc" />
+		<javadoc packagenames="*" sourcepath="${basedir}/src" destdir="${build.dir}/doc/api" author="true" version="true" windowtitle="${name} ${version} API" doctitle="${name}" footer="${javadocs.footer}">
+			<classpath refid="classpath.main" />
+		</javadoc>
+	</target>
+	<!-- =================================================================== -->
+	<!-- Runs the test -->
+	<!-- =================================================================== -->
+	<target name="junit-report">
+		<junitreport todir="${build.dir}/reports/raw">
+			<fileset dir="${build.dir}/reports/raw" includes="TEST-*.xml" />
+			<report format="frames" todir="${build.dir}/reports" />
+		</junitreport>
+	</target>
+	<target name="jacoco-report">
+		<jacoco:report>
+			<executiondata>
+				<file file="jacoco.exec" />
+			</executiondata>
+			<structure name="Database Project">
+				<classfiles>
+					<fileset dir="${build.dir}/classes" />
+				</classfiles>
+				<sourcefiles encoding="UTF-8">
+					<fileset dir="${basedir}/src" />
+				</sourcefiles>
+			</structure>
+			<html destdir="${build.dir}/jacoco/" />
+		</jacoco:report>
+	</target>
+	<target name="junit">
+		<jacoco:coverage>
+			<junit fork="true" forkmode="once" printsummary="yes" haltonfailure="no" showoutput="yes" timeout="6000000">
+				<sysproperty key="jub.consumers" value="H2" />
+				<sysproperty key="jub.charts.dir" value="${basedir}/benchmarks" />
+				<sysproperty key="jub.db.file" value="${basedir}/benchmarks/.benchmarks" />
+				<sysproperty key="basedir" value="${basedir}" />
+				<classpath>
+					<path refid="classpath.main" />
+				</classpath>
+				<formatter type="xml" />
+				<batchtest fork="yes" haltonfailure="no" todir="${build.dir}/reports/raw">
+					<fileset dir="${build.dir}/classes" includes="**/Test*.class" />
+					<formatter type="xml" />
+				</batchtest>
+				<jvmarg line="${jvm.args}" />
+			</junit>
+		</jacoco:coverage>
+	</target>
+	<!-- =================================================================== -->
+	<!-- -->
+	<!-- =================================================================== -->
+	<target name="test" depends="junit,junit-report,jacoco-report" />
+	<target name="cruise-control" depends="clean,jar,test,javadocs" />
+	<target name="all" depends="src.jar" />
+</project>

@@ -1,0 +1,130 @@
+.root {
+	-fx-color: #EEEEEE;
+}
+
+.label {
+    -fx-font: 12.0px Serif;
+}
+
+.hbox {
+	-fx-padding: 5.0;
+	-fx-spacing: 5.0;
+}
+
+.vbox {
+	-fx-padding: 5.0;
+	-fx-spacing: 5.0;
+}
+
+.grid {
+	-fx-background-radius: 5.0;
+	-fx-background-insets: 0.0 5.0 0.0 5.0;
+	-fx-padding: 5.0;
+	-fx-hgap: 5.0;
+	-fx-vgap: 5.0;
+}
+
+.text-area-readonly {
+	-fx-border-color: black;
+	-fx-border-width: 0.0;
+	-fx-focus-color: transparent;
+}
+
+.wizard-pane {
+    -fx-background-image: url('/images/wizard_background.jpg');
+    -fx-background-size: cover;
+    -fx-padding: 20.0px;
+    -fx-spacing: 10.0px;
+    -fx-font-size: 10.0;
+    -fx-text-fill: rgb(50.0, 50.0, 50.0);
+    -fx-alignment: center;
+    -fx-background-color: linear-gradient(to bottom, derive(-fx-glass-color, 20.0%),
+        -fx-glass-color);
+    -fx-border-color: derive(-fx-glass-color, -20.0%);
+    -fx-effect: dropshadow(three-pass-box, red, 10, 0.5, 0.0, 0.0);
+}
+
+.wizard-left-pane {
+    -fx-min-width: 150.0;
+}
+
+.wizard-center-pane {
+    -fx-padding: 20.0px;
+    -fx-spacing: 10.0px;
+    -fx-font-size: 10.0px ;
+    -fx-background-color: rgb(238.0, 238.0, 238.0);
+    -fx-border-radius: 10.0;
+    -fx-border-color: green;
+    -fx-background-insets: 10.0;
+    -fx-background-radius: 10.0;
+    -fx-effect: dropshadow(three-pass-box, blue, 10.0, 0.0, 0.0, 0.0);   
+}
+
+.wizard-header-pane {
+    -fx-padding: 10.0;
+    -fx-spacing: 10.0;
+    -fx-alignment: center-left;
+    -fx-font-size: 20.0px;
+    -fx-font-weight: bold;
+    -fx-text-fill: rgb(0.0, 0.0, 0.0);
+    -fx-text-alignment: left;
+}
+
+.wizard-footer-pane {
+    -fx-padding: 10.0;
+    -fx-spacing: 10.0;
+    -fx-alignment: center-left;
+    -fx-font-size: 20.0px;
+    -fx-font-weight: bold;
+    -fx-text-fill: rgb(0.0, 0.0, 0.0);
+    -fx-text-alignment: left;
+}
+
+.wizard-button-pane {
+	-fx-padding: 20.0px;
+	-fx-spacing: 10.0px;
+	-fx-font-size: 12.0;
+	-fx-font-weight: bold;
+	-fx-alignment: center-right;
+    -fx-background-insets: 10.0;
+    -fx-background-radius: 10.0; 
+               
+}
+
+.wizard-pane:pressed {
+	-fx-cursor: move;
+}
+
+.wizard-pane .button:pressed {
+	-fx-cursor: default;
+}
+
+.tab .tab-label {
+	-fx-skin: "com.sun.javafx.scene.control.skin.LabelSkin";
+	-fx-background-color: transparent;
+	-fx-alignment: CENTER;
+	-fx-text-fill: -fx-text-base-color;
+	-fx-font-weight: bold;
+}
+
+.table-view .column-header .label {
+	-fx-font-weight: bold;
+}
+
+.priorityLow {
+	-fx-control-inner-background: palegreen;
+	-fx-accent: derive(-fx-control-inner-background, -40.0%);
+	-fx-cell-hover-color: derive(-fx-control-inner-background, -20.0%);
+}
+
+.priorityMedium {
+	-fx-control-inner-background: skyblue;
+	-fx-accent: derive(-fx-control-inner-background, -40.0%);
+	-fx-cell-hover-color: derive(-fx-control-inner-background, -20.0%);
+}
+
+.priorityHigh {
+	-fx-control-inner-background: palevioletred;
+	-fx-accent: derive(-fx-control-inner-background, -40.0%);
+	-fx-cell-hover-color: derive(-fx-control-inner-background, -20.0%);
+}

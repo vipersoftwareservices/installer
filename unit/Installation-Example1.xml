@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<installation name="VOME Installer" width="550" height="450" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://www.vipersoftwareservices.com/schemas/installation.xsd" >
+	<program-icon>/images/installer.gif</program-icon>
+    <css>/InstallWizard.css</css>
+	<image align="West" size-to-fit="true" src="res:/images/wizardside.gif" />
+	<param name="InstallHome.Windows">C:\\Program Files\\Viper Software Services\\vome</param>
+	<param name="InstallHome.Unix">/opt/viper</param>
+    <param name="InstallHome.Mac">/opt/viper</param>
+	<param name="InstallHome">/opt/viper</param>
+	<param name="company.name">viper</param>
+	<param name="software.name">Vome</param>
+	<param name="ReleaseNotesFilename">readme.txt</param>
+	<param name="InstallFilename">res:/vome.zip</param>
+	<page name="introduction">
+		<header>Welcome to the VOME Install Wizard</header>
+		<body>
+			<text name="intro-notes" scrollable="true">
+		<![CDATA[
+        <html>
+            <body>
+                This wizard will guide you through the installation of the VOME
+                database tool by Viper Software Services.
+                <p>
+                We recommend that you close all other applications before starting
+                the Installation process. This will allow the updating of relevant
+                system files without having to reboot your computer.
+                <div style="position:absolute;bottom:5;">
+                Click Next when ready to continue the installation.
+                </div>
+            </body>
+       </html>
+           ]]>
+			</text>
+		</body>
+		<button name="next" page="overview" />
+		<button name="cancel" page="areyousure" />
+	</page>
+	<page name="overview">
+		<header>Software Overview</header>
+		<body>
+			<text scrollable="true"> Description (TBD)
+			</text>
+		</body>
+		<button name="previous" page="introduction" />
+		<button name="next" page="license" />
+		<button name="cancel" page="areyousure" />
+	</page>
+	<page name="license">
+		<header>License Agreement</header>
+		<body>
+			<text> Please review the terms of the license agreement before installing Viper software.</text>
+			<text filename="res:/license.html" scrollable="true" />
+			<text>Press the 'Page Down' key to see the rest of the agreement. If you accept the terms of the agreement, click check box
+				below.
+			</text>
+			<text>You must accept the agreement to install Viper software. Then click 'Next' to continue.</text>
+			<checkbox name="license"> I accept the terms in the License Agreement</checkbox>
+		</body>
+		<validation name="license" required="true" msg="Please accept the license agreement to continue">
+			<action>com.viper.installer.actions.BasicValidations.isTrue(license)</action>
+		</validation>
+		<button name="previous" page="overview" />
+		<button name="next" page="username" />
+		<button name="cancel" />
+	</page>
+	<page name="username">
+		<header>Software Installation Username</header>
+		<body>
+			<text>The installer will ensure that all the necessary software is set to run as the appropriate user.</text>
+			<choice name="InstallUser" list="com.viper.installer.actions.BasicLists.listOfUsers()"> What user should own this installation?</choice>
+			<choice name="InstallGroup" list="com.viper.installer.actions.BasicLists.listOfGroups()"> What group should own this installation?</choice>
+		</body>
+		<validation name="InstallUser" required="true" msg="Please the user who will own this installation directory!">
+			<action>com.viper.installer.actions.BasicValidations.validateUser(InstallUser)</action>
+		</validation>
+		<validation name="InstallGroup" required="true" msg="Please the group who will own this installation directory!">
+			<action>com.viper.installer.actions.BasicValidations.validateGroup(InstallGroup)</action>
+		</validation>
+		<button name="previous" page="license" />
+		<button name="next" page="install-dir" />
+		<button name="cancel" />
+	</page>
+	<page name="install-dir">
+		<header>Installation Directory</header>
+		<body>
+			<text>Enter the location for VOME software installation, and press next.</text>
+			<filename filter="DIRECTORIES_ONLY" name="InstallHome">Install Directory:</filename>
+		</body>
+		<validation name="InstallHome" required="true" msg="Please enter a valid installation directory" />
+		<button name="previous" page="username" />
+		<button name="next" page="confirm" />
+		<button name="cancel" />
+	</page>
+	<page name="confirm" scrollable="true">
+		<header>Confirm Installation</header>
+		<body>
+			<text>Below are the setup parameters for the VOME software installation, review and press Next to continue.
+			</text>
+			<prompt name="InstallHome" read-only="true">VOME Installation Directory</prompt>
+			<prompt name="InstallUser" read-only="true"> User (Installation Owner)</prompt>
+			<prompt name="InstallGroup" read-only="true"> Group (Installation Owner)</prompt>
+		</body>
+		<button name="previous" page="install-dir" />
+		<button name="next" page="install" label="Install" button-function="install">
+			<action>com.viper.installer.actions.BasicActions.unzip(InstallHome, InstallFilename, InstallationProgress, InstallationLog)
+			</action>
+		</button>
+		<button name="cancel" />
+	</page>
+	<page name="install">
+		<header>Perform Installation</header>
+		<body>
+			<text>Press 'Next' to start the file transfer for the installation.</text>
+			<log name="InstallationLog" scrollable="true" />
+			<progressbar name="InstallationProgress" height="30" />
+		</body>
+		<button name="previous" page="confirm" />
+		<button name="next" page="finished" label="Next" />
+		<button name="cancel" />
+	</page>
+	<page name="finished">
+		<header>Finished Installation</header>
+		<body>
+			<text>VOME Software has been installed, select the checkbox and press Finish to view the Release notes.
+			</text>
+			<checkbox name="ReadReleaseNotes">Read the release notes</checkbox>
+			<checkbox name="CreateShortCut">Create a Desktop ShortCut to Application</checkbox>
+		</body>
+		<button name="previous" page="install" />
+		<button name="next" label="Finish" button-function="done">
+			<action>com.viper.installer.actions.BasicActions.installDesktopIcons(CreateShortCut, InstallHome, InstallFilename)</action>
+			<action>com.viper.installer.actions.BasicActions.readReleaseNotes(ReadReleaseNotes, InstallHome, ReleaseNotesFilename)</action>
+		</button>
+		<button name="cancel" />
+	</page>
+</installation>

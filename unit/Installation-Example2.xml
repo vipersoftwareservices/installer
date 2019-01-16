@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<installation name="BlackArrow Installer" width="550" height="650"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.vipersoftwareservices.com/schemas/installation.xsd">
+	<image name="Header" align="North" src="res:/images/logo1.jpg" />
+	<param name="DIRECTORY">/test/blackarrow</param>
+	<param name="IS-SUBDIRECTORY">is</param>
+	<param name="ADS-SUBDIRECTORY">ads</param>
+	<param name="RULES-CORE-SUBDIRECTORY">barulescore</param>
+	<param name="RULES-CLIENT-SUBDIRECTORY">rulesclient</param>
+	<param name="CORE-SUBDIRECTORY">core</param>
+	<param name="TOMCAT-HOME">/test/tomcat</param>
+	<param name="JBOSS-HOME">/test/jboss</param>
+	<param name="MYSQL-HOME">/test/mysql</param>
+	<param name="INSTALL-USER">tnevin</param>
+	<param name="INSTALL-GROUP">tnevin</param>
+	<param name="INSTALL-TOMCAT">true</param>
+	<param name="INSTALL-JBOSS">true</param>
+	<param name="INSTALL-MYSQL">true</param>
+	<param name="INSTALL-IS">true</param>
+	<param name="INSTALL-ADS">true</param>
+	<param name="INSTALL-RULES-CORE">true</param>
+	<param name="INSTALL-RULES-CLIENT">true</param>
+	<param name="INSTALL-CORE">true</param>
+	<param name="ADS_ID">1</param>
+	<param name="NODE_ID">1</param>
+	<param name="AUTH_ID">317537</param>
+	<param name="RC_AUTH_ID">317537</param>
+	<param name="CORE_ID">1</param>
+	<param name="DATABASE_NAME">blackarrow</param>
+	<!-- Server Port numbers -->
+	<param name="INTEGRATION_SERVER_PORT">8380</param>
+	<param name="RULES_CORE_SERVER_PORT">8280</param>
+	<param name="RULES_CLIENT_SERVER_PORT">8080</param>
+	<param name="CORE_SERVER_PORT">8180</param>
+	<param name="INVOKERS_SERVICE_RMI_PORT">24444</param>
+	<param name="INVOKERS_SERVICE_BIND_PORT">24445</param>
+	<param name="TRANSPORT_SERVER_PORT">24446</param>
+	<param name="NAMING_SERVICE_RMI_PORT">21098</param>
+	<param name="NAMING_SERVICE_PORT">21099</param>
+	<param name="CLASSLOADER_WS_PORT">28083</param>
+	<param name="JMS_PORT">28093</param>
+	<param name="EJB_DEPLOYER_PORT">23873</param>
+	<param name="AJP_CONNECTOR_PORT">28009</param>
+	<!-- Installation file locations constant parameters -->
+	<param name="CORE-JAR-DIRECTORY">bacore/build/staging/coreinstaller</param>
+	<param name="BAINTEGRATION-JAR-DIRECTORY">baintegration/build/staging/intinstaller</param>
+	<param name="ADS-JAR-DIRECTORY">barules/build/staging/adsinstaller</param>
+	<param name="RULES-CLIENT-JAR-DIRECTORY">barules/build/staging/clientinstaller</param>
+	<param name="RULES-CORE-JAR-DIRECTORY">barules/build/staging/coreinstaller</param>
+	<param name="BIRT-JAR-DIRECTORY">babirt/build/birt_viewer.tar</param>
+	<param name="BASDK-JAR-DIRECTORY">basdk/build/staging/BlackArrow_Broadband_SDK_2.0</param>
+	<param name="TOMCAT-ZIP-FILE">res:/apache-tomcat-5.5.26.zip</param>
+	<param name="TOMCAT-WS-JAR-FILE">res:/JAXWS2.1.3-20071218.jar</param>
+	<param name="JBOSS-ZIP-FILE">res:/jboss-4.2.3.GA-jdk6.zip</param>
+	<param name="JBOSS-WS-ZIP-FILE">res:/jbossws-core-scripts.zip</param>
+	<param name="JBOSS-SPI-ZIP-FILE">res:/jbossws-spi-scripts.zip</param>
+	<param name="ReleaseNotesFilename">res:/readme.txt</param>
+	<page name="introduction">
+		<header font="Arial-BOLD-18"> Welcome to the BlackArrow Installation Wizard</header>
+		<body>
+			<text scrollable="true">
+		<![CDATA[
+        <html>
+            <body>
+                This wizard will guide you through the installation of the Black 
+                Arrow Software.
+                <p>
+                We recommend that you close all other applications before starting
+                the Installation process. This will allow the updating of relevant
+                system files without having to reboot your computer.
+                <p>
+                Click Next when ready to continue the installation.
+            </body>
+       </html>
+           ]]>
+			</text>
+		</body>
+		<button name="next" page="overview" />
+		<button name="cancel" page="areyousure" />
+	</page>
+	<page name="overview">
+		<header font="Arial-BOLD-18"> Software Overview</header>
+		<body>
+			<image scrollable="true" align="Center" src="res:/images/overview1.jpg" />
+		</body>
+		<button name="previous" page="introduction" />
+		<button name="next" page="status" />
+		<button name="cancel" page="areyousure" />
+	</page>
+	<page name="status">
+		<header font="Arial-BOLD-18"> System Status</header>
+		<body>
+			<canvas width="400" height="400">
+				<action>com.viper.installer.SystemStatusAction.update()</action>
+			</canvas>
+		</body>
+		<button name="previous" page="overview" />
+		<button name="next" page="license" />
+		<button name="cancel" page="areyousure" />
+	</page>
+	<page name="license">
+		<header font="Arial-BOLD-18">License Agreement</header>
+		<body>
+			<text> Please review the terms of the license agreement before installing BlackArrow software.</text>
+			<text scrollable="true" filename="res:/com/viper/installer/license.html" />
+			<text>Press the 'Page Down' key to see the rest of the agreement. If you accept the terms of the agreement,
+				click check box below.</text>
+			<text>You must accept the agreement to install BlackArrow software. Then click 'Next' to continue.</text>
+			<checkbox name="license"> I accept the terms in the License Agreement</checkbox>
+		</body>
+		<validation name="license" required="true" msg="Please accept the license agreement to continue" />
+		<button name="previous" page="status" />
+		<button name="next" page="username" />
+		<button name="cancel" />
+	</page>
+	<page name="username">
+		<header font="Arial-BOLD-18">Software Installation Username</header>
+		<body>
+			<text>The installer will ensure that all the necessary software (Tomcat/JBoss/BlackArrow) is set to run as
+				the appropriate user.</text>
+			<prompt name="INSTALL-USER"> What user should own this installation?</prompt>
+			<prompt name="INSTALL-GROUP"> What group should own this installation?</prompt>
+		</body>
+		<validation name="INSTALL-USER" required="true"
+			msg="Please the user who will own this installation directory!" />
+		<validation name="INSTALL-GROUP" required="true"
+			msg="Please the group who will own this installation directory!" />
+		<button name="previous" page="license" />
+		<button name="next" page="install-dir">
+			<action>com.viper.installer.ValidateUser.validate</action>
+		</button>
+		<button name="cancel" />
+	</page>
+	<page name="install-dir">
+		<header font="Arial-BOLD-18">Installation Directory</header>
+		<body>
+			<text>Enter the location for BlackArrow software installation, and press next.</text>
+			<filename filter="DIRECTORIES_ONLY" name="DIRECTORY" />
+		</body>
+		<validation name="DIRECTORY" required="true" msg="Please the installation directory" />
+		<button name="previous" page="username" />
+		<button name="next" page="tomcat-install" />
+		<button name="cancel" />
+	</page>
+	<page name="tomcat-install">
+		<header font="Arial-BOLD-18">Apache Tomcat Installation Directory</header>
+		<body>
+			<checkbox name="INSTALL-TOMCAT">Yes, Install Apache Tomcat server.</checkbox>
+			<text>Enter the location for Tomcat software installation, and press next.</text>
+			<filename filter="DIRECTORIES_ONLY" name="TOMCAT-HOME" />
+		</body>
+		<validation name="TOMCAT-HOME" required="true" msg="Please specify the Tomcat installation directory" />
+		<button name="previous" page="install-dir" />
+		<button name="next" page="jboss-install" />
+		<button name="cancel" />
+	</page>
+	<page name="jboss-install">
+		<header font="Arial-BOLD-18">JBoss Installation Directory</header>
+		<body>
+			<checkbox name="INSTALL-JBOSS">Yes, Install JBoss server.</checkbox>
+			<text>Enter the location for JBoss software installation, and press next.</text>
+			<filename filter="DIRECTORIES_ONLY" name="JBOSS-HOME" />
+		</body>
+		<validation name="JBOSS-HOME" required="true" msg="Please specify the JBoss installation directory" />
+		<button name="previous" page="tomcat-install" />
+		<button name="next" page="is-install" />
+		<button name="cancel" />
+	</page>
+	<page name="mysql-install">
+		<header font="Arial-BOLD-18"> MySQL Installation Directory</header>
+		<body>
+			<checkbox name="INSTALL-MYSQL">Yes, Install MySQL server.</checkbox>
+			<text>Enter the location for MySQL software installation, and press next.</text>
+			<filename filter="DIRECTORIES_ONLY" name="MYSQL-HOME" />
+		</body>
+		<validation name="MYSQL-HOME" required="true" msg="Please specify the MySQL installation directory" />
+		<button name="previous" page="jboss-install" />
+		<button name="next" page="is-install" />
+		<button name="cancel" />
+	</page>
+	<page name="is-install">
+		<header font="Arial-BOLD-18">Integration Server</header>
+		<body>
+			<checkbox name="INSTALL-IS"> Yes, install the Integration Server.</checkbox>
+			<prompt name="INTEGRATION_SERVER_PORT"> Integration server web port.</prompt>
+		</body>
+		<button name="previous" page="jboss-install" />
+		<button name="next" page="ads-install" />
+		<button name="cancel" />
+	</page>
+	<page name="ads-install">
+		<header font="Arial-BOLD-18">ADS Server</header>
+		<body>
+			<checkbox name="INSTALL-ADS"> Yes, install the ADS Server.</checkbox>
+			<text>Specify the parameters for this ADS server instance</text>
+			<prompt name="ADS_ID">ADS Id:</prompt>
+			<prompt name="NODE_ID">Node Id:</prompt>
+		</body>
+		<button name="previous" page="is-install" />
+		<button name="next" page="rules-core-install" />
+		<button name="cancel" />
+	</page>
+	<page name="rules-core-install" scrollable="true">
+		<header font="Arial-BOLD-18">ADS Rules Server</header>
+		<body>
+			<checkbox name="INSTALL-RULES-CORE"> Yes, install the ADS Rules Server.</checkbox>
+			<prompt name="RULES_CORE_SERVER_PORT"> Web port.</prompt>
+			<prompt name="ADS_ID">What ADS ID will this ADS instance have?</prompt>
+			<prompt name="NODE_ID">What node ID will this ADS instance have?</prompt>
+			<prompt name="AUTH_ID">Auth Id:</prompt>
+			<prompt name="RC_AUTH_ID">RC Auth Id:</prompt>
+			<prompt name="CORE_ID">Core Id:</prompt>
+		</body>
+		<button name="previous" page="ads-install" />
+		<button name="next" page="rules-client-install" />
+		<button name="cancel" />
+	</page>
+	<page name="rules-client-install">
+		<header font="Arial-BOLD-18">ADS Rules Client</header>
+		<body>
+			<checkbox name="INSTALL-RULES-CLIENT"> Yes, install the ADS Rules Client.</checkbox>
+			<text>Specify the parameters for this ADS Rules Client instance</text>
+		</body>
+		<button name="previous" page="rules-core-install" />
+		<button name="next" page="core-install" />
+		<button name="cancel" />
+	</page>
+	<page name="core-install">
+		<header font="Arial-BOLD-18">BlackArrow Core Client</header>
+		<body>
+			<checkbox name="INSTALL-RULES-CLIENT"> Yes, install the BlackArrow Core Client.</checkbox>
+			<text>Specify the parameters for this BlackArrow Core Client instance</text>
+		</body>
+		<button name="previous" page="rules-client-install" />
+		<button name="next" page="confirm" />
+		<button name="cancel" />
+	</page>
+	<page name="confirm" scrollable="true">
+		<header font="Arial-BOLD-18">Confirm Installation</header>
+		<body>
+			<text>Below are the setup parameters for the BlackArrow software installation, review and press Next to
+				continue.</text>
+			<prompt name="DIRECTORY" read-only="true"> BlackArrow Installation Directory</prompt>
+			<checkbox name="INSTALL-TOMCAT" read-only="true">Install Apache Tomcat?</checkbox>
+			<checkbox name="INSTALL-JBOSS" read-only="true">Install JBoss?</checkbox>
+			<checkbox name="INSTALL-MYSQL" read-only="true">Install MySQL?</checkbox>
+			<checkbox name="INSTALL-IS" read-only="true">Install Integration Server?</checkbox>
+			<checkbox name="INSTALL-ADS" read-only="true">Install ADS?</checkbox>
+			<checkbox name="INSTALL-RULES-CORE" read-only="true">Install Rules Core?</checkbox>
+			<prompt name="TOMCAT-HOME" read-only="true"> Apache Tomcat Installation Directory</prompt>
+			<prompt name="JBOSS-HOME" read-only="true"> JBoss Installation Directory</prompt>
+			<prompt name="INSTALL-USER" read-only="true"> User (Installation Owner)</prompt>
+			<prompt name="INSTALL-GROUP" read-only="true"> Group (Installation Owner)</prompt>
+			<prompt name="ADS_ID" read-only="true"> ADS Id</prompt>
+			<prompt name="NODE_ID" read-only="true"> Node Id</prompt>
+			<prompt name="AUTH_ID" read-only="true"> Auth Id</prompt>
+			<prompt name="RC_AUTH_ID" read-only="true"> RC Auth Id</prompt>
+			<prompt name="CORE_ID" read-only="true"> Core Id</prompt>
+			<!-- Server Port numbers -->
+			<prompt name="INTEGRATION_SERVER_PORT" read-only="true"> Installation Server Port</prompt>
+			<prompt name="RULES_CORE_SERVER_PORT" read-only="true"> Rules Core Port</prompt>
+		</body>
+		<button name="previous" page="core-install" />
+		<button name="next" page="install" />
+		<button name="cancel" />
+	</page>
+	<page name="install">
+		<header font="Arial-BOLD-18">Perform Installation</header>
+		<body>
+			<text>Press 'Next' to start the file transfer for the installation.</text>
+			<log name="INSTALL-LOG" scrollable="true" />
+			<progressbar name="InstallationProgress" />
+		</body>
+		<button name="previous" page="confirm" />
+		<button name="next" page="finished">
+			<action>com.viper.installer.InstallBlackArrow.performInstall()</action>
+		</button>
+		<button name="cancel" />
+	</page>
+	<page name="finished">
+		<header font="Arial-BOLD-18">Finished Installation</header>
+		<body>
+			<text>BlackArrow Software has been installed, select the checkbox and press Finish to view the Release notes.
+			</text>
+			<checkbox name="ReadReleaseNotes">Read the release notes</checkbox>
+		</body>
+		<button name="previous" page="install" />
+		<button name="finished">
+			<action>com.viper.installer.ReadReleaseNotes.perform()</action>
+		</button>
+	</page>
+</installation>

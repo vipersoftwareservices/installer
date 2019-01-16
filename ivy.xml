@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0">
+	<info organisation="com.viper" module="common" />
+	<configurations defaultconfmapping="default->master">
+		<conf name="default" description="Standard jars" />
+		<conf name="jfx" description="JavaFx third party jars" />
+	</configurations>
+	<dependencies defaultconf="default">
+		<dependency org="com.fasterxml.jackson.core" name="jackson-core" rev="2.5.4" />
+		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.5.4" />
+		<dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.5.4" />
+		<dependency org="org.apache.commons" name="commons-jexl" rev="2.1.1" />
+		<dependency org="org.apache.commons" name="commons-lang3" rev="3.3.2" />
+		<dependency org="commons-logging" name="commons-logging" rev="1.2" />
+		<!-- JavaFX -->
+		<!-- <dependency org="org.controlsfx" name="controlsfx" rev="8.40.10" conf="jfx->master" /> -->
+		<!-- <dependency org="org.jfxtras" name="jfxtras-all" rev="8.0-r3" conf="jfx->master" /> -->
+		<dependency org="org.controlsfx" name="controlsfx" rev="8.40.10"  conf="jfx->master" />
+		<dependency org="org.controlsfx" name="openjfx-dialogs" rev="1.0.3" conf="jfx->master" />
+	</dependencies>
+</ivy-module>
