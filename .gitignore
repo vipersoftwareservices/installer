@@ -2,7 +2,6 @@
 benchmarks
 build
 srcgen
-lib/libgen
-lib/drivers
+lib/libgen 
 lib/libdev
 .cvsignore

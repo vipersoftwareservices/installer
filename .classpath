@@ -7,8 +7,31 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/common.jar"/>
-	<classpathentry kind="lib" path="lib/commons-jexl-2.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/controlsfx-8.40.10.jar"/>
+	<classpathentry kind="lib" path="lib/libdev/antlr4-runtime-4.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/libdev/asm-6.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/libdev/catalina-ant-5.5.23.jar"/>
+	<classpathentry kind="lib" path="lib/libdev/checkstyle-8.11.jar"/>
+	<classpathentry kind="lib" path="lib/libdev/commons-cli-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/libdev/javax.servlet-api-4.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/libdev/junit-4.12.jar"/>
+	<classpathentry kind="lib" path="lib/libdev/junit-benchmarks-0.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/libdev/junitperf-1.8.jar"/>
+	<classpathentry kind="lib" path="lib/libdev/maven-dependency-analyzer-1.10.jar"/>
+	<classpathentry kind="lib" path="lib/libdev/org.jacoco.agent-0.8.1.jar"/>
+	<classpathentry kind="lib" path="lib/libdev/org.jacoco.ant-0.8.1.jar"/>
+	<classpathentry kind="lib" path="lib/libdev/org.jacoco.core-0.8.1.jar"/>
+	<classpathentry kind="lib" path="lib/libdev/org.jacoco.report-0.8.1.jar"/>
+	<classpathentry kind="lib" path="lib/libgen/commons-jexl-2.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/libgen/commons-lang3-3.3.2.jar"/>
+	<classpathentry kind="lib" path="lib/libgen/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/libgen/controlsfx-8.40.10.jar"/>
+	<classpathentry kind="lib" path="lib/libgen/jackson-annotations-2.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/libgen/jackson-core-2.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/libgen/jackson-databind-2.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/libgen/openjfx-dialogs-1.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/local/ant-javafx.jar"/>
+	<classpathentry kind="lib" path="lib/local/jacocoagent.jar"/>
+	<classpathentry kind="lib" path="lib/local/jacocoant.jar"/>
+	<classpathentry kind="lib" path="lib/local/openjfx-dialogs-1.0.3.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

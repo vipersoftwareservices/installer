@@ -82,13 +82,23 @@
 			<attribute name="Build-Time" value="${TSTAMP}" />
 			<attribute name="Main-Class" value="com.viper.installer.InstallWizard" />
 		</manifest>
-		<jar jarfile="${build.dir}/${name}.jar" manifest="${build.dir}/install.txt">
+
+		<jar jarfile="${build.dir}/${name}-tmp.jar" manifest="${build.dir}/install.txt" filesetmanifest="skip">
+			<zipgroupfileset dir="${basedir}/lib/">
+				<include name="**/*.jar" />
+				<include name="*.jar" />
+				<exclude name="libdev/*.jar" />
+			</zipgroupfileset>
+		</jar>
+		
+
+		<unjar src="${build.dir}/${name}-tmp.jar" dest="${build.dir}/externals"/>
+
+		<jar jarfile="${build.dir}/${name}.jar" manifest="${build.dir}/install.txt" filesetmanifest="skip">
 			<fileset dir="${build.dir}/classes" />
 			<fileset dir="${basedir}/src" includes="**/*.css" />
 			<fileset dir="${basedir}/etc" includes="installation.xsd" />
-			<zipgroupfileset dir="${basedir}/lib/" excludes="META-INF/**/*">
-				<include name="*.jar" />
-			</zipgroupfileset>
+			<fileset dir="${build.dir}/externals" excludes="META-INF/**/*,META-INF/*" />
 		</jar>
 	</target>
 	<!-- =================================================================== -->
@@ -121,19 +131,16 @@
 			<attribute name="Main-Class" value="com.viper.installer.InstallWizard" />
 			<attribute name="Installation-Resource" value="vome.zip" />
 		</manifest>
-		<jar jarfile="${build.dir}/${name}-demo.jar" manifest="${build.dir}/install.txt">
-			<zipgroupfileset dir="${build.dir}" excludes="META-INF/**/*">
+		<jar jarfile="${build.dir}/${name}-demo.jar" manifest="${build.dir}/install.txt" filesetmanifest="skip">
+			<fileset dir="${build.dir}" includes="vome.zip" />
+			<zipgroupfileset dir="${build.dir}">
 				<include name="${name}.jar" />
 			</zipgroupfileset>
-			<zipgroupfileset dir="${basedir}/lib/" excludes="META-INF/**/*">
-				<include name="*.jar" />
-			</zipgroupfileset>
-			<fileset dir="${build.dir}" includes="vome.zip" />
 		</jar>
 	</target>
 
 	<!-- =================================================================== -->
-	<target name="run">
+	<target name="run" depends="demo">
 		<java fork="true" jar="${build.dir}/${name}-demo.jar">
 			<jvmarg line="${jvm.args}" />
 		</java>
