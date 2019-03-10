@@ -109,6 +109,7 @@ public class ActionManager {
             String value = action.getValue().trim();
             try {
                 result = eval(value, session.getParameters());
+                System.out.println("executeAction: " + value + ","+ result);
             } catch (Throwable ex) {
                 showErrorDialog("Failure with action class: " + value + ", " + ex);
                 Logs.error("Failure with action class: " + value, ex);

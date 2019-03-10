@@ -30,7 +30,7 @@ import java.io.PrintStream;
 
 public class Logs {
 
-    public final static void redirect(String filename) throws Exception {
+    public static final void redirect(String filename) throws Exception {
         
         if (filename == null || filename.isEmpty()) {
             return;
@@ -42,68 +42,68 @@ public class Logs {
         System.setErr(ps);
     }
 
-    public final static void error(Object message) {
+    public static final void error(Object message) {
         System.err.println("ERROR-" + getCallerMethodName() + ":" + message);
     }
 
-    public final static void error(Object message, Throwable t) {
+    public static final void error(Object message, Throwable t) {
         System.err.println("ERROR-" + getCallerMethodName() + ":" + message);
         t.printStackTrace(System.err);
 
     }
 
-    public final static void warn(Object message) {
+    public static final void warn(Object message) {
         System.err.println("WARN-" + getCallerMethodName() + ":" + message);
 
     }
 
-    public final static void warn(Object message, Throwable t) {
+    public static final void warn(Object message, Throwable t) {
         System.err.println("WARN-" + getCallerMethodName() + ":" + message);
         t.printStackTrace(System.err);
 
     }
 
-    public final static void info(Object message) {
+    public static final void info(Object message) {
         System.err.println("INFO-" + getCallerMethodName() + ":" + message);
 
     }
 
-    public final static void info(Object message, Throwable t) {
+    public static final void info(Object message, Throwable t) {
         System.err.println("INFO-" + getCallerMethodName() + ":" + message);
         t.printStackTrace(System.err);
 
     }
 
-    public final static void debug(Object message) {
+    public static final void debug(Object message) {
         System.err.println("DEBUG-" + getCallerMethodName() + ":" + message);
     }
 
-    public final static void debug(Object message, Throwable t) {
+    public static final void debug(Object message, Throwable t) {
         System.err.println("DEBUG-" + getCallerMethodName() + ":" + message);
         t.printStackTrace(System.err);
     }
 
-    public final static void trace(Object message) {
+    public static final void trace(Object message) {
         System.err.println("TRACE-" + getCallerMethodName() + ":" + message);
     }
 
-    public final static void trace(Object message, Throwable t) {
+    public static final void trace(Object message, Throwable t) {
         System.err.println("TRACE-" + getCallerMethodName() + ":" + message);
         t.printStackTrace(System.err);
 
     }
 
-    public final static void msg(Object message) {
+    public static final void msg(Object message) {
         System.err.println(message);
     }
 
-    public final static void msg(Object message, Throwable t) {
+    public static final void msg(Object message, Throwable t) {
         System.err.println(message);
         t.printStackTrace(System.err);
 
     }
 
-    public final static String getCallerMethodName() {
+    public static final String getCallerMethodName() {
         return Thread.currentThread().getStackTrace()[3].getMethodName();
     }
 

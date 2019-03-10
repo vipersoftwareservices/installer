@@ -36,6 +36,8 @@ import java.io.FilePermission;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,16 +45,19 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.viper.installer.InstallWizard;
+import com.viper.installer.Session;
 import com.viper.installer.annotation.ActionTag;
 import com.viper.installer.util.FileUtil;
 import com.viper.installer.util.Logs;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ProgressBar;
 
 @ActionTag
 public class BasicActions {
@@ -64,8 +69,7 @@ public class BasicActions {
      *            the directory file is to be copied to.
      * @param filename
      *            the filename of the file to copy.
-     * @return value indicating the status of the copy (false failed, true
-     *         success).
+     * @return value indicating the status of the copy (false failed, true success).
      */
 
     public boolean copy(String dir, String filename) {
@@ -89,8 +93,7 @@ public class BasicActions {
      * @param filename
      *            the filename of the file to move.
      * 
-     * @return boolean value indicating the status of the move (false failed,
-     *         true success).
+     * @return boolean value indicating the status of the move (false failed, true success).
      */
     public boolean move(String dir, String filename) {
         try {
@@ -114,47 +117,47 @@ public class BasicActions {
     }
 
     /**
-     * General purpose command to install a shortcut, can be used for other
-     * purposes.
+     * General purpose command to install a shortcut, can be used for other purposes.
      * 
      * @param createShortCut
-     *            is a flag indicating if the shortcut should be installed
-     *            matches UI checkbox.
+     *            is a flag indicating if the shortcut should be installed matches UI checkbox.
      * @param installHome
      *            the directory of the home of the installation.
      * @param scriptCommand
-     *            the script command line t be executed, but to include the
-     *            template
+     *            the script command line t be executed, but to include the template
      * @param scriptTemplateFilename
-     *            the filename of the script template, in which, tokens are to
-     *            be replaced with actual values.
+     *            the filename of the script template, in which, tokens are to be replaced with
+     *            actual values.
      * 
-     * @return boolean value indicating the status of installing shortcut (false
-     *         failed, true success).
+     * @return boolean value indicating the status of installing shortcut (false failed, true
+     *         success).
      */
 
-    public boolean installShortcut(String createShortCut, String installHome, String scriptCommand, String scriptTemplateFilename) {
+    public boolean installShortcut(String createShortCut, String scriptFilename) {
         try {
             Boolean result = Boolean.parseBoolean(createShortCut);
             if (result == null || !result) {
                 return false;
             }
-            if (scriptCommand == null || scriptCommand.trim().length() == 0) {
+            if (scriptFilename == null || scriptFilename.trim().length() == 0) {
                 return false;
             }
-            if (scriptTemplateFilename == null || scriptTemplateFilename.trim().length() == 0) {
-                return false;
-            }
+ 
+            String scriptTemplate = BasicActions.getInstallationItem(scriptFilename);
 
-            String scriptTemplate = FileUtil.readFile("res:/" + scriptTemplateFilename);
-            String script = scriptTemplate.replace("#install.home#", installHome).replace("#user.home#", System.getProperty("user.home"));
+            Session session = Session.getInstance();
+            session.put("user.home", System.getProperty("user.home"));
+
+            String script = session.replaceTokens(scriptTemplate);
+
             String tmpDirectory = System.getProperty("java.io.tmpdir");
 
-            Logs.info("Installing ShortCut: " + tmpDirectory + "/" + scriptTemplateFilename);
-            FileUtil.writeFile(tmpDirectory + "/" + scriptTemplateFilename, script);
+            String cmd = tmpDirectory + "/" + scriptFilename;
+            Logs.info("Installing ShortCut: " + cmd);
 
-            String cmd = scriptCommand + " \"" + tmpDirectory + "/" + scriptTemplateFilename + "\"";
-            Utils.exec(cmd, installHome);
+            FileUtil.writeFile(cmd, script);
+
+            Utils.exec(cmd, tmpDirectory);
             return true;
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -163,8 +166,8 @@ public class BasicActions {
     }
 
     /**
-     * Install file named filename from the installation bundle to the specified
-     * directory. Create all the directory and all ancestors if missing.
+     * Install file named filename from the installation bundle to the specified directory. Create
+     * all the directory and all ancestors if missing.
      * 
      * @param directory
      *            the directory where file is to be copied
@@ -174,8 +177,7 @@ public class BasicActions {
      *            unused
      * @param group
      *            unused
-     * @return boolean value indicating the status of the copy (false failed,
-     *         true success).
+     * @return boolean value indicating the status of the copy (false failed, true success).
      */
     public boolean installFile(String directory, String filename, String user, String group) {
 
@@ -195,8 +197,8 @@ public class BasicActions {
     }
 
     /**
-     * Unzip the file named filename from the installation bundle, into the
-     * directory. Create all the directory and all ancestors if missing.
+     * Unzip the file named filename from the installation bundle, into the directory. Create all
+     * the directory and all ancestors if missing.
      * 
      * @param directory
      *            the target directory where files are to be unzipped
@@ -205,11 +207,10 @@ public class BasicActions {
      * @param progressBar
      *            unused
      * 
-     * @return boolean value indicating the status of the unzip (false failed,
-     *         true success).
+     * @return boolean value indicating the status of the unzip (false failed, true success).
      */
 
-    public boolean unzip(String directory, String filename, ProgressBar progressBar) {
+    public boolean unzip(String directory, String filename, String username, String groupname) {
 
         try {
             Logs.info("Unzip: " + directory + ":" + filename);
@@ -217,9 +218,7 @@ public class BasicActions {
             // Check if installation directory exists.
             new File(directory).mkdirs();
 
-            Class clazz = getClass();
-
-            ZipInputStream zipStream = new ZipInputStream(Utils.getInputStream(clazz, filename));
+            ZipInputStream zipStream = new ZipInputStream(Utils.getInputStream("res:/" + getInstallationFilename()));
 
             while (true) {
                 ZipEntry entry = zipStream.getNextEntry();
@@ -251,6 +250,90 @@ public class BasicActions {
         return false;
     }
 
+    /**
+     * Unzip the file named filename from the installation bundle, into the directory. Create all
+     * the directory and all ancestors if missing.
+     * 
+     * @param directory
+     *            the target directory where files are to be unzipped
+     * @param filename
+     *            the name of the zip file to be unzipped
+     * @param progressBar
+     *            unused
+     * 
+     * @return boolean value indicating the status of the unzip (false failed, true success).
+     */
+
+    public static final String readZipItem(String zipfile, String zipname) {
+
+        System.out.println("readZipItem.initialize: " + zipfile + ":" + zipname);
+
+        StringBuilder buf = new StringBuilder();
+        ZipInputStream zipStream = null;
+
+        try {
+            zipStream = new ZipInputStream(Utils.getInputStream(BasicActions.class, zipfile));
+
+            while (true) {
+                ZipEntry entry = zipStream.getNextEntry();
+                if (entry == null) {
+                    break;
+                }
+                System.out.println("readZipItem: " + zipfile + ":" + entry.getName());
+                if (entry == null || !zipname.equals(entry.getName())) {
+                    continue;
+                }
+
+                int size = (int) entry.getSize();
+                byte[] buffer = new byte[size];
+                while (zipStream.available() == 1) {
+                    int len = zipStream.read(buffer, 0, size);
+                    if (len <= 0) {
+                        break;
+                    }
+                    System.out.println("readZipItem.length: " + len + "," + buf.length());
+                    buf.append(new String(buffer, 0, len, Charset.forName("ISO-8859-1")));
+                }
+                break;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            if (zipStream != null) {
+                try {
+                    zipStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        System.out.println("readZipItem.src: " + buf.length());
+        return buf.toString();
+    }
+
+    public static final String getInstallationFilename() {
+
+        URLClassLoader cl = (URLClassLoader) InstallWizard.class.getClassLoader();
+        try {
+            URL url = cl.findResource("META-INF/MANIFEST.MF");
+            Manifest manifest = new Manifest(url.openStream());
+
+            Attributes attributes = manifest.getMainAttributes();
+            return attributes.getValue("Installation-Resource");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        System.out.println("NO Installation-Resource attribute found in  MANIFEST.MF");
+        return null;
+    }
+
+    public static final String getInstallationItem(String filename) throws Exception {
+
+        String installationZip = getInstallationFilename();
+
+        return readZipItem("res:/" + installationZip, filename);
+    }
+
     public void postInstall() {
     }
 
@@ -263,20 +346,18 @@ public class BasicActions {
     }
 
     /**
-     * If possible this method opens the default browser to the specified web
-     * page. If not it notifies the user of webpage's url so that they may
-     * access it manually.
+     * If possible this method opens the default browser to the specified web page. If not it
+     * notifies the user of webpage's url so that they may access it manually.
      * 
      * @param readReleaseNotes
-     *            a flag indicating if we should launch the browser to read
-     *            release notes, or do nothing.
+     *            a flag indicating if we should launch the browser to read release notes, or do
+     *            nothing.
      * @param directory
-     *            the installation directory where the release notes can be
-     *            found.
+     *            the installation directory where the release notes can be found.
      * @param filename
      *            the filename of the release notes
-     * @return boolean value indicating the status of the launching the release
-     *         notes (false failed, true success).
+     * @return boolean value indicating the status of the launching the release notes (false failed,
+     *         true success).
      */
     public boolean readReleaseNotes(String readReleaseNotes, String directory, String filename) {
         if (readReleaseNotes == null || !Boolean.parseBoolean(readReleaseNotes)) {
@@ -295,8 +376,8 @@ public class BasicActions {
             }
         } catch (Exception e) {
             /*
-             * I know this is bad practice but we don't want to do anything
-             * clever for a specific error
+             * I know this is bad practice but we don't want to do anything clever for a specific
+             * error
              */
             e.printStackTrace();
 
@@ -307,19 +388,19 @@ public class BasicActions {
             clpbrd.setContents(stringSelection, null);
             // Notify the user of the failure
             Logs.error("This program just tried to open a webpage." + "\n"
-                    + "The URL has been copied to your clipboard, simply paste into your browser to access." + " Webpage: " + file.toURI());
+                    + "The URL has been copied to your clipboard, simply paste into your browser to access." + " Webpage: "
+                    + file.toURI());
         }
         return false;
     }
 
     /**
      * 
-     * @param installHome 
-     * @param fname 
-     *            file or directory to set permissions, including children (if
-     *            directory).
-     * @return boolean value indicating the status of the setting the execute
-     *         file status (false failed, true success).
+     * @param installHome
+     * @param fname
+     *            file or directory to set permissions, including children (if directory).
+     * @return boolean value indicating the status of the setting the execute file status (false
+     *         failed, true success).
      */
     public boolean setExecutePermission(String installHome, String fname) {
         String filename = (installHome == null) ? fname : installHome + "/" + fname;
@@ -353,9 +434,8 @@ public class BasicActions {
     }
 
     /**
-     * Check the both flags runScript and runScriptConfirmed for positive
-     * values, if found, then run the command/script in the specified wrking
-     * directory (directory).
+     * Check the both flags runScript and runScriptConfirmed for positive values, if found, then run
+     * the command/script in the specified wrking directory (directory).
      * 
      * @param runScript
      *            flag indicating whether to run the script
@@ -366,8 +446,8 @@ public class BasicActions {
      * @param cmd
      *            command/script which is to be executed.
      * 
-     * @return boolean value indicating the status of running the
-     *         command/.script (false failed, true success).
+     * @return boolean value indicating the status of running the command/.script (false failed,
+     *         true success).
      */
     public boolean runScript(String runScript, String runScriptConfirmed, String directory, String cmd) {
         if (runScript == null || !Boolean.parseBoolean(runScript)) {
@@ -388,9 +468,8 @@ public class BasicActions {
     }
 
     /**
-     * Check the both flags runScript and runScriptConfirmed for positive
-     * values, if found, then run the command/script in the specified wrking
-     * directory (directory).
+     * Check the both flags runScript and runScriptConfirmed for positive values, if found, then run
+     * the command/script in the specified wrking directory (directory).
      * 
      * @param runScript
      *            flag indicating whether to run the script
@@ -401,10 +480,11 @@ public class BasicActions {
      * @param cmd
      *            command/script which is to be executed.
      * 
-     * @return boolean value indicating the status of running the
-     *         command/.script (false failed, true success).
+     * @return boolean value indicating the status of running the command/.script (false failed,
+     *         true success).
      */
-    public boolean runConfigScript(String installHome, String runScript, String group, String section, String name, String value) {
+    public boolean runConfigScript(String installHome, String runScript, String group, String section, String name,
+            String value) {
 
         try {
             if (value == null || value.trim().length() == 0) {
@@ -431,8 +511,8 @@ public class BasicActions {
      * @param installHome
      * @param cmd
      *            command/script which is to be executed.
-     * @return boolean value indicating the status of running the
-     *         command/.script (false failed, true success).
+     * @return boolean value indicating the status of running the command/.script (false failed,
+     *         true success).
      */
     public boolean runScriptTemplate(String runScript, String directory, String installHome, String cmd) {
         if (runScript == null || !Boolean.parseBoolean(runScript)) {
@@ -609,14 +689,14 @@ public class BasicActions {
     }
 
     /**
-     * Check if the file exists, that is a requirement met. If so output message
-     * saying tool has been installed.
+     * Check if the file exists, that is a requirement met. If so output message saying tool has
+     * been installed.
      * 
      * @param toolname
      *            the name of the tool for message purposes
      * @param argument
-     *            the list of filenames, comma separated, only one of the files
-     *            need exist. To say that tool requirement has been met.
+     *            the list of filenames, comma separated, only one of the files need exist. To say
+     *            that tool requirement has been met.
      * @return whether the file exists or not (true file exists, false doesn't)
      */
     public final boolean checkFilesExists(String toolname, String argument) {

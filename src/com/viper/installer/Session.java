@@ -32,32 +32,57 @@ import javafx.beans.property.Property;
 
 public class Session extends HashMap<String, Object> {
 
-	static final Session instance = new Session();
+    static final Session instance = new Session();
 
-	private Session() {
+    private Session() {
 
-	}
+    }
 
-	public static Session getInstance() {
-		return instance;
-	}
+    public static Session getInstance() {
+        return instance;
+    }
 
-	public Property getProperty(String name) {
-		if (get(name) instanceof Property) {
-			return (Property)get(name);
-		} 
-		return null;
-	}
+    public Property getProperty(String name) {
+        if (get(name) instanceof Property) {
+            return (Property) get(name);
+        }
+        return null;
+    }
 
-	public Map<String, Object> getParameters() {
-		Map<String, Object> map = new HashMap<String, Object>();
-		for (String key : keySet()) {
-			if (get(key) instanceof Property) {
-				map.put(key, ((Property) get(key)).getValue());
-			} else {
-				map.put(key, get(key));
-			}
-		}
-		return map;
-	}
+    public Map<String, Object> getParameters() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        for (String key : keySet()) {
+            if (get(key) instanceof Property) {
+                map.put(key, ((Property) get(key)).getValue());
+            } else {
+                map.put(key, get(key));
+            }
+        }
+        return map;
+    }
+
+    public String replaceTokens(String str) {
+        for (String key : this.keySet()) {
+            if (key != null) {
+                String token = buildToken(key);
+                str = str.replace(token, this.get(key).toString());
+            }
+        }
+        return str;
+    }
+
+    public String buildToken(String key) {
+        StringBuilder buf = new StringBuilder();
+        buf.append("#");
+        for (int i = 0; i < key.length(); i++) {
+            char c = key.charAt(i);
+            if (Character.isUpperCase(c)) {
+                buf.append(".");
+            }
+            buf.append(Character.toLowerCase(c));
+        }
+        buf.append("#");
+        return buf.toString();
+    }
+
 }

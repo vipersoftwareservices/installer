@@ -26,6 +26,7 @@
 package com.viper.installer;
 
 import java.io.File;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -35,6 +36,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.transform.stream.StreamSource;
 
 import com.viper.installer.actions.ActionManager;
+import com.viper.installer.actions.BasicActions;
 import com.viper.installer.actions.Utils;
 import com.viper.installer.model.Installation;
 import com.viper.installer.model.Page;
@@ -50,7 +52,7 @@ import javafx.stage.Stage;
 
 public class InstallWizard extends Application {
 
-    private static final String installFilename = "/Installation.xml";
+    private static final String InstallFilename = "Installation.xml";
 
     // -------------------------------------------------------------------------
 
@@ -61,16 +63,15 @@ public class InstallWizard extends Application {
     public final void start(Stage stage) {
 
         try {
-            Installation doc = unmarshal(Installation.class, installFilename);
+            Installation doc = unmarshalString(Installation.class, getInstallationXml());
             if (doc == null) {
-                throw new Exception("Unable to process intallation commands." + installFilename);
+                throw new Exception("Unable to process intallation commands: " + InstallFilename);
             }
 
             Session session = Session.getInstance();
 
             // Process all the external parameters
             processParameters(session, doc.getParam());
-            
 
             session.put("ui", true);
 
@@ -90,18 +91,18 @@ public class InstallWizard extends Application {
             wizard.show(wizardPages.get(0), true);
 
             Scene scene = new Scene(wizard, doc.getWidth(), doc.getHeight());
-            // scene.getStylesheets().add(AquaSkin.getStylesheet());
-            if (doc.getCss() != null) {
-                scene.getStylesheets().add(getClass().getResource(doc.getCss()).toExternalForm());
-            }
+            // scene.getStylesheets().add(AquaSkin.getStylesheet());c
+            scene.getStylesheets().add(getClass().getResource("/InstallWizard.css").toExternalForm());
 
             if (doc.getWidth() > 0 && doc.getHeight() > 0) {
                 stage.setWidth(doc.getWidth());
                 stage.setHeight(doc.getHeight());
             }
 
+            if (doc.getProgramIcon() != null) {
+                stage.getIcons().add(new Image(getClass().getResourceAsStream(doc.getProgramIcon())));
+            }
             stage.setTitle(doc.getName());
-            stage.getIcons().add(new Image(getClass().getResourceAsStream(doc.getProgramIcon())));
             stage.setScene(scene);
             stage.show();
 
@@ -147,11 +148,16 @@ public class InstallWizard extends Application {
     private final static <T> T unmarshal(Class<T> clazz, String filename) throws Exception {
         File file = new File(filename);
         if (file.exists()) {
-            return (T)getJAXBContext(clazz).createUnmarshaller().unmarshal(new StreamSource(file), clazz).getValue();
+            return (T) getJAXBContext(clazz).createUnmarshaller().unmarshal(new StreamSource(file), clazz).getValue();
         } else {
             StreamSource source = new StreamSource(clazz.getResourceAsStream(filename));
             return getJAXBContext(clazz).createUnmarshaller().unmarshal(source, clazz).getValue();
         }
+    }
+
+    private final static <T> T unmarshalString(Class<T> clazz, String str) throws Exception {
+        StreamSource stream = new StreamSource(new StringReader(str));
+        return (T) getJAXBContext(clazz).createUnmarshaller().unmarshal(stream, clazz).getValue();
     }
 
     private final static void processParameters(Session session, List<Parameter> params) throws Exception {
@@ -174,13 +180,20 @@ public class InstallWizard extends Application {
         return null;
     }
 
-    public final static void quickInstall(String filename) {
+    private static final String getInstallationXml() throws Exception {
+
+        String installationZip = BasicActions.getInstallationFilename();
+
+        return BasicActions.readZipItem("res:/" + installationZip, InstallFilename);
+    }
+
+    public static final void quickInstall(String filename) {
         try {
 
             // Load installation file as resource
-            Installation doc = unmarshal(Installation.class, installFilename);
+            Installation doc = unmarshalString(Installation.class, getInstallationXml());
             if (doc == null) {
-                throw new Exception("Unable to process installation commands: " + installFilename);
+                throw new Exception("Unable to process installation commands: " + InstallFilename);
             }
 
             // Load custom parameters
@@ -196,7 +209,7 @@ public class InstallWizard extends Application {
 
             // Process all the custom parameters
             processParameters(session, custom.getParam());
-            
+
             session.put("ui", false);
 
             // 1. Output name of installation

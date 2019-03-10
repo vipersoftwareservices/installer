@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.viper.installer.actions.ActionManager;
-import com.viper.installer.actions.Utils;
+import com.viper.installer.actions.BasicActions;
 import com.viper.installer.model.Body;
 import com.viper.installer.model.Component;
 import com.viper.installer.model.Footer;
@@ -72,6 +72,7 @@ import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.effect.Reflection;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -82,7 +83,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.converter.BooleanStringConverter;
 
-public class WizardPage extends VBox {
+public class WizardPage extends BorderPane {
 
     private Page page = null;
     private Stage stage = null;
@@ -95,15 +96,15 @@ public class WizardPage extends VBox {
 
         Body body = page.getBody();
 
-        getChildren().add(createTitlePane(page));
+        setTop(createTitlePane(page));
 
         VBox pane = new VBox();
         if (page.isScrollable()) {
             ScrollPane scrollPane = newVerticalScrollPane(pane);
-            getChildren().add(scrollPane);
+            setCenter(scrollPane);
             VBox.setVgrow(scrollPane, Priority.ALWAYS);
         } else {
-            getChildren().add(pane);
+            setCenter(pane);
             VBox.setVgrow(pane, Priority.ALWAYS);
         }
 
@@ -124,7 +125,7 @@ public class WizardPage extends VBox {
                 Component component = (Component) item;
                 if (component.getFilename() != null) {
                     try {
-                        str = new Utils().readFile(component.getFilename());
+                        str = BasicActions.getInstallationItem(component.getFilename());
                     } catch (Exception e1) {
                         e1.printStackTrace();
                     }
@@ -159,14 +160,23 @@ public class WizardPage extends VBox {
                 session.put(name + ".component", text);
 
             } else if (item instanceof com.viper.installer.model.Text) {
+                com.viper.installer.model.Text text = (com.viper.installer.model.Text) item;
 
-                if (str != null && str.indexOf("<html") != -1) {
+                if (text.getFilename() != null) {
+                    String htmlstr = BasicActions.getInstallationItem(text.getFilename());
+                    
+                    WebView htmlPane = new WebView();
+                    htmlPane.getEngine().loadContent(htmlstr);
+
+                    pane.getChildren().add(newVerticalScrollPane(htmlPane)); 
+
+                    session.put(name + ".component", htmlPane);
+                    
+                } else if (str != null && str.indexOf("<html") != -1) {
                     WebView htmlPane = new WebView();
                     htmlPane.getEngine().loadContent(str);
 
-                    Node child = newVerticalScrollPane(htmlPane);
-                    pane.getChildren().add(child);
-                    // VBox.setVgrow(htmlPane, Priority.ALWAYS);
+                    pane.getChildren().add(newVerticalScrollPane(htmlPane)); 
 
                     session.put(name + ".component", htmlPane);
 
@@ -189,10 +199,8 @@ public class WizardPage extends VBox {
                 pane.getChildren().add(lbl);
 
             } else if (item instanceof com.viper.installer.model.Image) {
-                com.viper.installer.model.Image img = (com.viper.installer.model.Image) item;
-                String src = img.getSrc().substring("res:".length());
-
-                ImageView image = newImageView(getClass().getResourceAsStream(src));
+                com.viper.installer.model.Image img = (com.viper.installer.model.Image) item; 
+                ImageView image = newImageView(getClass().getResourceAsStream(img.getSrc()));
 
                 Node child = (!isScrollable) ? image : newScrollPane(image);
                 pane.getChildren().add(child);
@@ -310,7 +318,7 @@ public class WizardPage extends VBox {
             }
         }
 
-        getChildren().add(createFooterPane(page));
+        setBottom(createFooterPane(page));
     }
 
     public Page getPage() {
@@ -329,7 +337,7 @@ public class WizardPage extends VBox {
         titlePane.getStyleClass().add("wizard-header-pane");
         titlePane.getChildren().add(titleLabel);
 
-        VBox.setVgrow(titlePane, Priority.NEVER);
+        // VBox.setVgrow(titlePane, Priority.NEVER);
 
         return titlePane;
     }
@@ -349,7 +357,7 @@ public class WizardPage extends VBox {
             titlePane.getChildren().add(titleLabel);
         }
 
-        VBox.setVgrow(titlePane, Priority.NEVER);
+        // VBox.setVgrow(titlePane, Priority.NEVER);
 
         return titlePane;
     }

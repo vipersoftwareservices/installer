@@ -1,7 +1,8 @@
 #
-build
 benchmarks
+build
 srcgen
 lib/libgen
 lib/drivers
 lib/libdev
+.cvsignore

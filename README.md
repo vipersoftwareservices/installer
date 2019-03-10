@@ -83,9 +83,21 @@ Check on coding style by running:
 ant checkstyle
 ```
 
-## Deployment
+## Usage
 
-In progress
+In order to use the installation tool, you will need to create and edit some files:
+```
+installation.xml, required, an xml file of configuration data which will be used to fill the wizard pages of the UI for doing the installation.
+license.html, optional, an html file for displaying the license for your application which must be accepted during the installation file
+readme.txt, optional, an html/txt file which is to be displayed after the installation has occurred.
+shortcut.<cmd sh>, optional, a set of scripts which will run on differenet OS's for to install a shortcut and desktop icon for your application, typically used for client installations.
+<wizardside.gif>, optional, an image to display as the background on the installation wizard.
+<application.jar>, required, the file or files which are to be installed.     
+```
+
+The heart of your installation setup is the installation.xml file, following is a small portion of the installation file, see the sources for complete sample.
+
+TODO not done yet  
 
 ## Built With
  
@@ -106,8 +118,5 @@ See also the list of [contributors](https://github.com/vipersoftwareservices/ins
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details
-
-## Acknowledgments
-
-In progress
+ 
 

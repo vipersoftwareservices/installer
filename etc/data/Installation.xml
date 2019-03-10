@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <installation name="VOME Installer" width="550" height="450" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="http://www.vipersoftwareservices.com/schemas/installation.xsd">
-	<image align="West" size-to-fit="true" src="res:/images/wizardside.gif" />
-	<param name="InstallHomeWindow">C:\\Program Files\\Viper Software Services\\vome</param>
-	<param name="InstallHomeUnix">/opt/viper</param>
+	<image align="West" size-to-fit="true" src="wizardside.gif" />
+	<param name="InstallHome.Windows">C:\\Program Files\\Viper Software Services\\vome</param>
+	<param name="InstallHome.Unix">/opt/viper</param>
 	<param name="InstallHome">/opt/viper</param>
+
+	<param name="InstallShortcut.Windows">shortcut.cmd</param>
+	<param name="InstallShortcut.Unix">shortcut.sh</param>
+	<param name="InstallShortcut">shortcut.cmd</param>
+
 	<param name="company.name">viper</param>
 	<param name="software.name">Vome</param>
 	<param name="ReleaseNotesFilename">readme.txt</param>
@@ -17,7 +22,7 @@
         <html>
             <body>
                 This wizard will guide you through the installation of the VOME
-                database tool by Viper Software Services.
+                 database tool by Viper Software Services.
                 <p>
                 We recommend that you close all other applications before starting
                 the Installation process. This will allow the updating of relevant
@@ -47,7 +52,7 @@
 		<header>License Agreement</header>
 		<body>
 			<text> Please review the terms of the license agreement before installing Viper software.</text>
-			<text filename="res:/license.html" scrollable="true" />
+			<text filename="license.html" scrollable="true" />
 			<text>Press the 'Page Down' key to see the rest of the agreement. If you accept the terms of the agreement,
 				click check box below.
 			</text>
@@ -71,8 +76,7 @@
 		<validation name="InstallUser" required="true" msg="Please the user who will own this installation directory!">
 			<action>com.viper.installer.actions.BasicValidations.validateUser(InstallUser)</action>
 		</validation>
-		<validation name="InstallGroup" required="true"
-			msg="Please the group who will own this installation directory!">
+		<validation name="InstallGroup" required="true" msg="Please the group who will own this installation directory!">
 			<action>com.viper.installer.actions.BasicValidations.validateGroup(InstallGroup)</action>
 		</validation>
 		<button name="previous" page="license" />
@@ -106,17 +110,17 @@
 	<page name="install">
 		<header>Perform Installation</header>
 		<body>
-			<text>Press 'Next' to start the file transfer for the installation.</text>
+			<text>Press 'Install' to start the file transfer for the installation.</text>
 			<log name="INSTALL-LOG" scrollable="true" />
 			<progressbar name="InstallationProgress" height="30" />
 		</body>
 		<button name="previous" page="confirm" />
 		<button name="next" page="finished" label="Install">
+			<action>com.viper.installer.actions.BasicActions.unzip(InstallHome, InstallFilename, InstallUser,
+				InstallGroup)
+			</action>
 		</button>
 		<button name="cancel" />
-		<action>com.viper.installer.actions.BasicActions.unzip(InstallHome, InstallFilename, InstallUser,
-			InstallGroup)
-		</action>
 	</page>
 	<page name="finished">
 		<header>Finished Installation</header>
@@ -127,9 +131,10 @@
 			<checkbox name="CreateShortCut">Create a Desktop ShortCut to Application</checkbox>
 		</body>
 		<button name="previous" page="install" />
-		<button name="next" label="Finish" />
+		<button name="next" label="Finish">
+			<action>com.viper.installer.actions.BasicActions.installShortcut(CreateShortCut, InstallShortcut)</action>
+			<action>com.viper.installer.actions.BasicActions.readReleaseNotes(ReadReleaseNotes, InstallHome, ReleaseNotesFilename)</action>
+		</button>
 		<button name="cancel" />
-		<action>com.viper.installer.actions.BasicActions.installDesktopIcons(CreateShortCut, InstallHome, InstallFilename)</action>
-		<action>com.viper.installer.actions.BasicActions.readReleaseNotes(ReadReleaseNotes, InstallHome, ReleaseNotesFilename)</action>
 	</page>
 </installation>

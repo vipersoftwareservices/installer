@@ -1,13 +1,22 @@
 <?xml version="1.0" ?>
-<!-- ======================================================================== -->
-<!-- schematool build file -->
-<!-- ======================================================================== -->
 <project name="installer" default="all" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:jacoco="antlib:org.jacoco.ant">
-	<property file="build.properties" />
+
 	<property name="name" value="installer" />
 	<property name="version" value="1.0" />
 	<property name="build.dir" value="${basedir}/build" />
 	<property name="install.test.home" value="${basedir}" />
+	<property name="version" value="1.0" />
+	<property name="jvm.deprecation" value="-Xlint:deprecation" />
+	<property name="jvm.args" value="-Xmx1024m -Xms256m " />
+	<property name="jvm.debug.args" value="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000" />
+	<property name="test.name" value="Test*" />
+	<property name="debug" value="on" />
+	<property name="deprecation" value="off" />
+	<property name="optimize" value="off" />
+	<property name="nowarn" value="on" />
+	<property name="source" value="1.8" />
+	<property name="target" value="1.8" />
+
 	<!-- ===================================================================== -->
 	<path id="classpath.main">
 		<pathelement path="${build.dir}/classes" />
@@ -17,12 +26,6 @@
 	<path id="classpath.tools">
 		<fileset dir="${basedir}/lib" includes="**/*.jar" />
 	</path>
-	<!-- =================================================================== -->
-	<!-- Task Definitions -->
-	<!-- =================================================================== -->
-	<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask" classpathref="classpath.tools" />
-	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml" classpathref="classpath.tools" />
-	<taskdef resource="org/apache/catalina/ant/catalina.tasks" classpathref="classpath.tools" />
 	<!-- =================================================================== -->
 	<target name="clean">
 		<delete dir="${build.dir}" />
@@ -36,20 +39,41 @@
 		<mkdir dir="${build.dir}/doc/api" />
 		<mkdir dir="${build.dir}/reports/raw" />
 	</target>
-	<target name="srcgen" depends="prepare">
+	<!-- =================================================================== -->
+	<!-- Update the junit in the ant directory -->
+	<!-- =================================================================== -->
+	<target name="resolve" depends="prepare">
+		<ivy:retrieve pattern="${basedir}/lib/[conf]/[artifact]-[revision].[ext]" conf="*" />
+		<ivy:report conf="*" todir="${build.dir}" />
+	</target>
+	<!-- =================================================================== -->
+	<!-- Task Definitions -->
+	<!-- =================================================================== -->
+	<target name="taskdefs" depends="resolve">
+		<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask" classpathref="classpath.tools" />
+		<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml" classpathref="classpath.tools" />
+		<taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties" classpathref="classpath.tools" />
+	</target>
+	<!-- =================================================================== -->
+	<!-- Automated Java beans -->
+	<!-- =================================================================== -->
+	<target name="srcgen" depends="taskdefs">
 		<xjc schema="${basedir}/etc/installation.xsd" destdir="${basedir}/srcgen" package="com.viper.installer.model">
 			<arg value="-npa" />
 		</xjc>
 	</target>
+	<!-- =================================================================== -->
+	<!-- Compile -->
+	<!-- =================================================================== -->
 	<target name="compile" depends="srcgen">
-		<javac srcdir="srcgen:src:unit" destdir="${build.dir}/classes" debug="${debug}" deprecation="${deprecation}" source="${source}" target="${target}" compiler="${compiler}" optimize="${optimize}">
+		<javac srcdir="srcgen:src:unit" destdir="${build.dir}/classes" debug="${debug}" deprecation="${deprecation}" source="${source}" target="${target}" optimize="${optimize}">
 			<classpath refid="classpath.main" />
 		</javac>
 	</target>
+	<!-- =================================================================== -->
+	<!-- INstallation jar file  -->
+	<!-- =================================================================== -->
 	<target name="jar" depends="compile">
-		<zip destfile="${build.dir}/vome.zip">
-			<fileset dir="${basedir}/etc/data" includes="**" />
-		</zip>
 		<manifest file="${build.dir}/install.txt">
 			<attribute name="Manifest-Version" value="1.0" />
 			<attribute name="Sealed" value="false" />
@@ -67,19 +91,53 @@
 			</zipgroupfileset>
 		</jar>
 	</target>
-	
-    <target name="src.jar" depends="jar">
-        <jar jarfile="${build.dir}/${name}-src.jar">
-            <fileset dir="${basedir}/.." includes="${name}/etc/**" />
-            <fileset dir="${basedir}/.." includes="${name}/lib/**" />
-            <fileset dir="${basedir}/.." includes="${name}/src/**" />
-            <fileset dir="${basedir}/.." includes="${name}/srcgen/**" />
-            <fileset dir="${basedir}/.." includes="${name}/unit/**" />
-            <fileset dir="${basedir}/.." includes="${name}/*" />
-            <fileset dir="${basedir}/.." includes="${name}/*.*" />
-        </jar>
-    </target>
-    
+	<!-- =================================================================== -->
+	<!-- source jar file  -->
+	<!-- =================================================================== -->
+	<target name="src.jar" depends="jar">
+		<jar jarfile="${build.dir}/${name}-src.jar">
+			<fileset dir="${basedir}/.." includes="${name}/etc/**" />
+			<fileset dir="${basedir}/.." includes="${name}/lib/**" />
+			<fileset dir="${basedir}/.." includes="${name}/src/**" />
+			<fileset dir="${basedir}/.." includes="${name}/srcgen/**" />
+			<fileset dir="${basedir}/.." includes="${name}/unit/**" />
+			<fileset dir="${basedir}/.." includes="${name}/*" />
+			<fileset dir="${basedir}/.." includes="${name}/*.*" />
+		</jar>
+	</target>
+	<!-- =================================================================== -->
+	<!-- Demo test  -->
+	<!-- =================================================================== -->
+	<target name="demo" depends="jar">
+		<zip destfile="${build.dir}/vome.zip">
+			<fileset dir="${basedir}/etc/data" includes="**" />
+		</zip>
+		<manifest file="${build.dir}/install.txt">
+			<attribute name="Manifest-Version" value="1.0" />
+			<attribute name="Sealed" value="false" />
+			<attribute name="MainTest-Version" value="${version}" />
+			<attribute name="Build-Date" value="${TODAY}" />
+			<attribute name="Build-Time" value="${TSTAMP}" />
+			<attribute name="Main-Class" value="com.viper.installer.InstallWizard" />
+			<attribute name="Installation-Resource" value="vome.zip" />
+		</manifest>
+		<jar jarfile="${build.dir}/${name}-demo.jar" manifest="${build.dir}/install.txt">
+			<zipgroupfileset dir="${build.dir}" excludes="META-INF/**/*">
+				<include name="${name}.jar" />
+			</zipgroupfileset>
+			<zipgroupfileset dir="${basedir}/lib/" excludes="META-INF/**/*">
+				<include name="*.jar" />
+			</zipgroupfileset>
+			<fileset dir="${build.dir}" includes="vome.zip" />
+		</jar>
+	</target>
+
+	<!-- =================================================================== -->
+	<target name="run">
+		<java fork="true" jar="${build.dir}/${name}-demo.jar">
+			<jvmarg line="${jvm.args}" />
+		</java>
+	</target>
 	<!-- =================================================================== -->
 	<!-- Creates the API documentation -->
 	<!-- =================================================================== -->

@@ -68,7 +68,7 @@ public class Wizard extends BorderPane {
 
         stackPane.getStyleClass().add("wizard-center-pane");
 
-        BorderPane banner = new BorderPane();
+        BorderPane banner  = new BorderPane();
         banner.getStyleClass().add("wizard-left-pane");
 
         bar.getStyleClass().add("wizard-button-pane");
